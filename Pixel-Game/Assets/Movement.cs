@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Movement : MonoBehaviour
 {
+    public GameObject pixelParent;
 
     [SerializeField]
     private LayerMask groundLayers;
@@ -11,6 +12,7 @@ public class Movement : MonoBehaviour
     private Animator animator;
 
     Rigidbody2D body;
+    Collider2D coll;
 
     public Transform foot;
 
@@ -25,8 +27,11 @@ public class Movement : MonoBehaviour
 
     bool jump = false;
 
+    public Vector2 footOverlapCapsuleOffset;
+
     public Vector2 longJumpForce = Vector2.zero;
     public Vector2 highJumpForce = Vector2.zero;
+    public Vector2 modifierJumpForce = Vector2.zero;
 
     bool isGrounded = false;
 
@@ -38,6 +43,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         body = GetComponent<Rigidbody2D>();
+        coll = GetComponent<Collider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
@@ -76,23 +82,59 @@ public class Movement : MonoBehaviour
 
 
         if (faceDirection == -1)
+        {
             spriteRenderer.flipX = true;
+            pixelParent.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
         else
+        {
             spriteRenderer.flipX = false;
+            pixelParent.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
 
         //print(faceDirection);
 
+        if (isGrounded)
+        {
+            animator.SetBool("inAir", false);
+        }
+        else
+        {
+            animator.SetBool("inAir", true);
+        }
 
 
+        if (Input.GetButtonDown("Fire1"))
+        {
+            StartCoroutine("Explode");
 
+
+        }
 
     }
+
+    IEnumerator Explode()
+    {
+        Vector2 velocity = body.velocity;
+
+        coll.enabled = false;
+        body.bodyType = RigidbodyType2D.Static;
+
+        yield return new WaitForSeconds(1);
+
+        pixelParent.transform.parent = null;
+
+        gameObject.SetActive(false);
+
+        pixelParent.GetComponent<ExplodeController>().Explode(velocity);
+
+    }
+
 
     private void FixedUpdate()
     {
 
-
-        Collider2D[] groundColliders = Physics2D.OverlapCircleAll(foot.position, 0.05f, groundLayers);
+        Collider2D[] groundColliders = Physics2D.OverlapCapsuleAll(foot.position + (Vector3)footOverlapCapsuleOffset, coll.bounds.size * 0.9f, CapsuleDirection2D.Horizontal, 0, groundLayers);
 
         isGrounded = false;
 
@@ -111,18 +153,26 @@ public class Movement : MonoBehaviour
         if (isGrounded && jump)
         {
 
-            
 
-            if (horizontal != 0)
+            if (Input.GetButton("Fire3"))
             {
-                //Long Jump
-                body.AddForce(new Vector2(longJumpForce.x * faceDirection, longJumpForce.y));
+                body.AddForce(new Vector2(modifierJumpForce.x * faceDirection, modifierJumpForce.y));
             }
             else
             {
-                //High Jump
-                body.AddForce(new Vector2(highJumpForce.x * faceDirection, highJumpForce.y));
+                if (horizontal != 0)
+                {
+                    //Long Jump
+                    body.AddForce(new Vector2(longJumpForce.x * faceDirection, longJumpForce.y));
+                }
+                else
+                {
+                    //High Jump
+                    body.AddForce(new Vector2(highJumpForce.x * faceDirection, highJumpForce.y));
+                }
             }
+
+            
 
             
 
