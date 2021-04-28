@@ -62,11 +62,11 @@ public class Movement : MonoBehaviour
         }
 
 
-        if (horizontal == 1)
+        if (horizontal > 0)
         {
             faceDirection = 1;
         }
-        else if (horizontal == -1){
+        else if (horizontal < 0){
             faceDirection = -1;
         }
        
@@ -104,12 +104,12 @@ public class Movement : MonoBehaviour
         }
 
 
-        if (Input.GetButtonDown("Fire1"))
+        /*if (Input.GetButtonDown("Fire1"))
         {
             StartCoroutine("Explode");
 
 
-        }
+        }*/
 
     }
 
@@ -147,14 +147,15 @@ public class Movement : MonoBehaviour
             }
         }
 
+       
 
         //print(isGrounded);
 
         if (isGrounded && jump)
         {
 
-
-            if (Input.GetButton("Fire3"))
+            
+            if (Input.GetButton("Fire3") || Input.GetAxis("Fire3") != 0)
             {
                 body.AddForce(new Vector2(modifierJumpForce.x * faceDirection, modifierJumpForce.y));
             }
