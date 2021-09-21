@@ -11,12 +11,12 @@ public class Movement : MonoBehaviour
 
     private Animator animator;
 
-    Rigidbody2D body;
+    public Rigidbody2D body;
     Collider2D coll;
 
     public Transform foot;
 
-    float horizontal;
+    public float horizontal;
     float vertical;
 
     public float speed = 0;
@@ -25,7 +25,7 @@ public class Movement : MonoBehaviour
 
     public float movementSmoothing = 0;
 
-    bool jump = false;
+    public bool jump = false;
 
     public Vector2 footOverlapCapsuleOffset;
 
@@ -153,7 +153,6 @@ public class Movement : MonoBehaviour
 
         if (isGrounded && jump)
         {
-
             
             if (Input.GetButton("Fire3") || Input.GetAxis("Fire3") != 0)
             {
